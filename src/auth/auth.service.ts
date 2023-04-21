@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { find } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,9 @@ export class AuthService {
       user: {
         id: payload.id,
         fullName: findUser.fullName,
+        email: findUser.email,
+        role: findUser.role,
+        updated: findUser.updated,
       },
       token: token,
     };
