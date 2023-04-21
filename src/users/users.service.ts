@@ -6,6 +6,7 @@ import { User, UserDocument } from './schema/users.schema';
 import { Model } from 'mongoose';
 import { hash } from 'bcrypt';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { compare } from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
@@ -33,16 +34,22 @@ export class UsersService {
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
     //asasd
-    const plainToHash = await hash(updatePasswordDto.password, 10);
-    const user = await this.userModel.findByIdAndUpdate(
-      id,
-      {
-        password: plainToHash,
-      },
-      { new: true },
+    const userById = await this.userModel.findById(id);
+    if (!userById) throw new NotFoundException(`User with ID ${id} not found`);
+    const checkPassword = await compare(
+      updatePasswordDto.current_password,
+      userById.password,
     );
-    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-    return user;
+    if (!checkPassword)
+      throw new HttpException('CURRENT_PASSWORD_INCORRECT', 403);
+    const plainToHash = await hash(updatePasswordDto.new_password, 10);
+    const updatePassword = await this.userModel.updateOne(
+      { _id: id },
+      { $set: { password: plainToHash } },
+    );
+
+    if (!updatePassword) throw new HttpException('NEW_PASSWORD_ERROR', 403);
+    return true;
   }
 
   remove(id: number) {
