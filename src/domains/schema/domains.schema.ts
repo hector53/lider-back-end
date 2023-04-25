@@ -1,24 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-}
-
 @Schema()
-export class User {
+export class Domain {
   @Prop({ required: true })
-  fullName: string;
-
-  @Prop({ required: true, unique: true })
-  email: string;
-
-  @Prop({ required: true })
-  password: string;
-
-  @Prop({ required: true, enum: UserRole, default: UserRole.USER })
-  role: UserRole;
+  url: string;
 
   @Prop({ type: Date, default: Date.now })
   created: Date;
@@ -30,10 +16,10 @@ export class User {
   active: boolean;
 }
 
-export type UserDocument = User & Document & { active: boolean };
-export const UserSchema = SchemaFactory.createForClass(User);
+export type DomainDocument = Domain & Document & { active: boolean };
+export const DomainSchema = SchemaFactory.createForClass(Domain);
 
-UserSchema.pre<UserDocument>('save', function (next) {
+DomainSchema.pre<DomainDocument>('save', function (next) {
   const now = new Date();
   this.updated = now;
   if (!this.created) {

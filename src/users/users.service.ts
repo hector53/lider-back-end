@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { hash } from 'bcrypt';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { compare } from 'bcrypt';
+import { stat } from 'fs';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
@@ -20,16 +21,83 @@ export class UsersService {
     return this.userModel.create(createUserDto);
   }
 
-  findAll() {
-    return this.userModel.find({}, { password: 0 });
+  async findAll(page: number, limit: number, search: string) {
+    console.log('-------------------------------');
+    page = Number(page);
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    console.log('endIndex', endIndex);
+    const query = search
+      ? {
+          $or: [
+            { fullName: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const users = await this.userModel
+      .find(query, { password: 0 })
+      .skip(startIndex)
+      .limit(limit);
+    const count: number = await this.userModel.countDocuments(query);
+    console.log('count', count);
+    const totalPages: number = Math.ceil(count / limit);
+
+    const hasNextPage: boolean = endIndex < count;
+    const hasPreviousPage: boolean = startIndex > 0;
+    console.log('page', page);
+    const nextPage: number = hasNextPage ? page + 1 : null;
+    console.log('nextPage', nextPage);
+    const previousPage: number = hasPreviousPage ? page - 1 : null;
+    return {
+      users: users,
+      count,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage,
+      nextPage,
+      previousPage,
+    };
   }
 
   findOne(id: string) {
     return this.userModel.findById(id).select('-password');
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    console.log('id user service', id);
+    console.log('updateUserDto', updateUserDto);
+    const userById = await this.userModel.findById(id);
+    if (!userById) throw new NotFoundException(`User with ID ${id} not found`);
+    //comprobar password si es diferente:
+    const updateParams: UpdateUserDto = {
+      fullName: updateUserDto.fullName,
+      email: updateUserDto.email,
+      role: updateUserDto.role,
+    };
+    if (updateUserDto.password != 'User1234*') {
+      console.log('cambio password');
+      updateParams.password = updateUserDto.password;
+    }
+    const updatePassword = await this.userModel.updateOne(
+      { _id: id },
+      { $set: updateParams },
+    );
+    if (!updatePassword) throw new HttpException('NEW_PASSWORD_ERROR', 403);
+    return true;
+  }
+
+  async updateStatusUser(id: string, status: boolean) {
+    console.log('status', status);
+    const userById = await this.userModel.findById(id);
+    if (!userById) throw new NotFoundException(`User with ID ${id} not found`);
+    const updateUserStatus = await this.userModel.updateOne(
+      { _id: id },
+      { $set: { active: status } },
+    );
+    if (!updateUserStatus) throw new HttpException('ERROR', 403);
+    return true;
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
@@ -52,7 +120,8 @@ export class UsersService {
     return true;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    console.log('borrar id: ', id);
+    return this.userModel.findByIdAndDelete(id);
   }
 }
