@@ -17,6 +17,7 @@ export class DomainsService {
   async findAll(page: number, limit: number, search: string) {
     console.log('-------------------------------');
     page = Number(page);
+    limit = Number(limit);
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     console.log('endIndex', endIndex);
@@ -26,10 +27,60 @@ export class DomainsService {
         }
       : {};
 
-    const domains = await this.domainModel
-      .find(query, { password: 0 })
-      .skip(startIndex)
-      .limit(limit);
+    const domains = await this.domainModel.aggregate([
+      { $match: query },
+      { $skip: startIndex },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'domainprocessors',
+          let: { domainId: { $toString: '$_id' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$domain_id', '$$domainId'],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: 'processors',
+                let: { processorID: '$processor_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ['$_id', { $toObjectId: '$$processorID' }],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      name: 1,
+                      description: 1,
+                      fee: 1,
+                      image: 1,
+                      active: 1,
+                    },
+                  },
+                ],
+                as: 'processor',
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                processor_id: 0,
+                domain_id: 0,
+              },
+            },
+          ],
+          as: 'domainprocessors',
+        },
+      },
+    ]);
     const count: number = await this.domainModel.countDocuments(query);
     console.log('count', count);
     const totalPages: number = Math.ceil(count / limit);

@@ -33,6 +33,7 @@ export class DomainsController {
     @Query('limit') limit = 2,
     @Query('search') search,
   ) {
+    console.log('params', page, limit, search);
     return this.domainsService.findAll(page, limit, search);
   }
 
