@@ -107,6 +107,70 @@ export class DomainsProcessorsService {
     };
   }
 
+  async getProcessorsDomainsByIdDomain(id: string) {
+    //quiero el nombre del dominio y todos los procesadore de ese dominio
+    //primero traer el nombre del dominio
+    const domain = await this.domainModel.findById(id);
+    if (!domain) throw new NotFoundException(`Domain with ID ${id} not found`);
+    //ahora si busco los procesadores de este dominio
+
+    let arrayDomainProcessors = [];
+    const domainsProcessorsByDomain =
+      await this.domainProcessorsModel.aggregate([
+        {
+          $match: { domain_id: id },
+        },
+        {
+          $lookup: {
+            from: 'processors',
+            let: { processorID: '$processor_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', { $toObjectId: '$$processorID' }],
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  name: 1,
+                  description: 1,
+                  fee: 1,
+                  image: 1,
+                },
+              },
+            ],
+            as: 'processor',
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            domain_id: 1,
+            processor_id: 1,
+            public_key: 1,
+            private_key: 1,
+            active: 1,
+            created: 1,
+            updated: 1,
+            processor_name: { $arrayElemAt: ['$processor.name', 0] },
+            processor_description: {
+              $arrayElemAt: ['$processor.description', 0],
+            },
+            processor_fee: { $arrayElemAt: ['$processor.fee', 0] },
+            processor_image: { $arrayElemAt: ['$processor.image', 0] },
+          },
+        },
+      ]);
+
+    if (domainsProcessorsByDomain) {
+      arrayDomainProcessors = domainsProcessorsByDomain;
+    }
+    return arrayDomainProcessors;
+  }
+
   findAll() {
     return `This action returns all domainsProcessors`;
   }

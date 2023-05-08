@@ -7,10 +7,16 @@ import { Model } from 'mongoose';
 import { hash } from 'bcrypt';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { compare } from 'bcrypt';
-import { stat } from 'fs';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  allUsersForSites() {
+    return this.userModel.find({
+      role: 'user',
+      active: true,
+    });
+  }
   async create(createUserDto: CreateUserDto) {
     // const createdUser = new this.userModel(createUserDto);
     //return createdUser.save();

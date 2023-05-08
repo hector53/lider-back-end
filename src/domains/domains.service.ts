@@ -14,6 +14,12 @@ export class DomainsService {
     return this.domainModel.create(createDomainDto);
   }
 
+  allDomains() {
+    return this.domainModel.find({
+      active: true,
+    });
+  }
+
   async findAll(page: number, limit: number, search: string) {
     console.log('-------------------------------');
     page = Number(page);
