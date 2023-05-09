@@ -4,6 +4,9 @@ import { Document } from 'mongoose';
 @Schema()
 export class Domain {
   @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
   url: string;
 
   @Prop({ type: Date, default: Date.now })

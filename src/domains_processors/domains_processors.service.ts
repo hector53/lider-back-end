@@ -101,7 +101,7 @@ export class DomainsProcessorsService {
     }
 
     return {
-      domainUrl: domain.url,
+      domainName: domain.name,
       domainProcessors: arrayDomainProcessors,
       processors: arrayProcessors,
     };
@@ -183,6 +183,7 @@ export class DomainsProcessorsService {
     id: string,
     updateDomainsProcessorDto: UpdateDomainsProcessorDto,
   ) {
+    updateDomainsProcessorDto.active = true;
     const processorDomainById = await this.domainProcessorsModel.findById(id);
     if (!processorDomainById)
       throw new NotFoundException(`Proccessor domain with ID ${id} not found`);

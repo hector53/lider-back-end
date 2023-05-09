@@ -5,6 +5,9 @@ export class Domain {
   _id?: string;
 
   @Field()
+  name: string;
+
+  @Field()
   url: string;
 
   @Field()

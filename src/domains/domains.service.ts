@@ -87,6 +87,7 @@ export class DomainsService {
         },
       },
     ]);
+    console.log('domains:', domains);
     const count: number = await this.domainModel.countDocuments(query);
     console.log('count', count);
     const totalPages: number = Math.ceil(count / limit);
