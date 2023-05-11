@@ -26,7 +26,11 @@ export class AuthService {
     const checkPassword = await compare(password, findUser.password);
     if (!checkPassword) throw new HttpException('PASSWORD_INCORRECT', 403);
 
-    const payload = { id: findUser._id, email: findUser.email };
+    const payload = {
+      id: findUser._id,
+      email: findUser.email,
+      r: findUser.role,
+    };
     const token = this.jwtService.sign(payload);
 
     const data = {

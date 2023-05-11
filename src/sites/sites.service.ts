@@ -142,6 +142,23 @@ export class SitesService {
     return `This action returns a #${id} site`;
   }
 
+  getSiteByUserId(id: string) {
+    return this.siteModel.findOne({
+      assigned_user: id,
+    });
+  }
+
+  updateSiteWebhook(site_id: string, webhook: string) {
+    return this.siteModel.findOneAndUpdate(
+      {
+        _id: site_id,
+      },
+      {
+        webhook: webhook,
+      },
+    );
+  }
+
   updateSiteActive(activeInput: UpdateSiteActiveInput) {
     return this.siteModel.updateOne(
       { _id: activeInput._id },
