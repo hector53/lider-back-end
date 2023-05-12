@@ -4,6 +4,10 @@ import { DomainsController } from './domains.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Domain, DomainSchema } from './schema/domains.schema';
 import { DomainsResolver } from './domains.resolver';
+import {
+  DomainProcessors,
+  DomainProcessorsSchema,
+} from 'src/domains_processors/schema/domains_processors.schema';
 
 @Module({
   imports: [
@@ -11,6 +15,10 @@ import { DomainsResolver } from './domains.resolver';
       {
         name: Domain.name,
         schema: DomainSchema,
+      },
+      {
+        name: DomainProcessors.name,
+        schema: DomainProcessorsSchema,
       },
     ]),
   ],

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { generarCodigoAleatorio } from 'src/utils/coderandom.utils';
 
 @Schema()
 export class Domain {
@@ -8,6 +9,9 @@ export class Domain {
 
   @Prop({ required: true })
   url: string;
+
+  @Prop()
+  token: string;
 
   @Prop({ type: Date, default: Date.now })
   created: Date;
@@ -30,6 +34,10 @@ DomainSchema.pre<DomainDocument>('save', function (next) {
   }
   if (this.isNew && this.active === undefined) {
     this.active = true;
+  }
+
+  if (this.isNew) {
+    this.token = generarCodigoAleatorio(10);
   }
   next();
 });

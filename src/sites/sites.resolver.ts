@@ -7,22 +7,26 @@ import { SitePagination } from './entities/sitePaginacion.entity';
 import { UpdateSiteActiveInput } from './dto/update-site-active.input';
 import { UseGuards } from '@nestjs/common';
 import { JWTAuthGuardHql } from 'src/auth/jwt-guardhql.guard';
+import { JWTAuthGuardHqlUser } from 'src/auth/jwt-guardhqlUser';
 
 @Resolver(() => Site)
 export class SitesResolver {
   constructor(private readonly sitesService: SitesService) {}
 
   @Mutation(() => Site)
+  @UseGuards(JWTAuthGuardHql)
   createSite(@Args('createSiteInput') createSiteInput: CreateSiteInput) {
     return this.sitesService.create(createSiteInput);
   }
 
   @Mutation(() => Site)
+  @UseGuards(JWTAuthGuardHql)
   updateSite(@Args('updateSiteInput') updateSiteInput: UpdateSiteInput) {
     return this.sitesService.update(updateSiteInput);
   }
 
   @Mutation(() => Site, { name: 'updateSiteWebhook' })
+  @UseGuards(JWTAuthGuardHql)
   updateSiteWebhook(
     @Args('site_id') site_id: string,
     @Args('webhook') webhook: string,
@@ -31,6 +35,7 @@ export class SitesResolver {
   }
 
   @Mutation(() => Site)
+  @UseGuards(JWTAuthGuardHql)
   updateSiteActive(
     @Args('updateSiteActive') activeInput: UpdateSiteActiveInput,
   ) {
@@ -38,6 +43,7 @@ export class SitesResolver {
   }
 
   @Query(() => SitePagination, { name: 'sites' })
+  @UseGuards(JWTAuthGuardHql)
   findAll(
     @Args('page') page: number,
     @Args('limit') limit: number,
@@ -48,16 +54,19 @@ export class SitesResolver {
   }
 
   @Query(() => Site, { name: 'site' })
+  @UseGuards(JWTAuthGuardHql)
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.sitesService.findOne(id);
   }
 
+  @UseGuards(JWTAuthGuardHqlUser)
   @Query(() => Site, { name: 'getSiteByUserId' })
   getSiteByUserId(@Args('id') id: string) {
     return this.sitesService.getSiteByUserId(id);
   }
 
   @Mutation(() => Site)
+  @UseGuards(JWTAuthGuardHql)
   removeSite(@Args('id') id: string) {
     return this.sitesService.remove(id);
   }

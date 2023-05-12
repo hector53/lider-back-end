@@ -4,11 +4,17 @@ import { UpdateDomainDto } from './dto/update-domain.dto';
 import { Domain, DomainDocument } from './schema/domains.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import {
+  DomainProcessors,
+  DomainProcessorsDocument,
+} from 'src/domains_processors/schema/domains_processors.schema';
 
 @Injectable()
 export class DomainsService {
   constructor(
     @InjectModel(Domain.name) private domainModel: Model<DomainDocument>,
+    @InjectModel(DomainProcessors.name)
+    private domainProcessorsModel: Model<DomainProcessorsDocument>,
   ) {}
   create(createDomainDto: CreateDomainDto) {
     return this.domainModel.create(createDomainDto);
@@ -125,9 +131,13 @@ export class DomainsService {
     return true;
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     console.log('borrar id: ', id);
-    return this.domainModel.findByIdAndDelete(id);
+    await this.domainProcessorsModel.deleteMany({
+      domain_id: id,
+    });
+    await this.domainModel.findByIdAndDelete(id);
+    return true;
   }
 
   async updateStatusDomain(id: string, status: boolean) {

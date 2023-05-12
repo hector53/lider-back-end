@@ -3,7 +3,10 @@ import { ProcessorsSiteDomainService } from './processors-site-domain.service';
 import { ProcessorsSiteDomain } from './entities/processors-site-domain.entity';
 import { CreateProcessorsSiteDomainInput } from './dto/create-processors-site-domain.input';
 import { UpdateProcessorsSiteDomainInput } from './dto/update-processors-site-domain.input';
+import { JWTAuthGuardHql } from 'src/auth/jwt-guardhql.guard';
+import { UseGuards } from '@nestjs/common';
 
+@UseGuards(JWTAuthGuardHql)
 @Resolver(() => ProcessorsSiteDomain)
 export class ProcessorsSiteDomainResolver {
   constructor(

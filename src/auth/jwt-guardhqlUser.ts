@@ -9,7 +9,7 @@ import { jwtConstants } from './jwt.constants';
 import { Request } from 'express';
 
 @Injectable()
-export class JWTAuthGuardHql implements CanActivate {
+export class JWTAuthGuardHqlUser implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -27,10 +27,7 @@ export class JWTAuthGuardHql implements CanActivate {
       });
       // 💡 We're assigning the payload to the request object here
       // so that we can access i  t in our route handlers
-      console.log('role: ', payload.r);
-      if (payload.r != 'admin') {
-        throw new UnauthorizedException();
-      }
+
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();
