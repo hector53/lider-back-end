@@ -13,6 +13,17 @@ import { generarCodigoAleatorio } from 'src/utils/coderandom.utils';
 import { Site, SiteDocument } from 'src/sites/schema/sites.schema';
 import { HttpService } from '@nestjs/axios';
 import { GetTokenDto } from './dto/get-token.dto';
+import { Template } from 'src/templates/entities/template.entity';
+import { TemplateDocument } from 'src/templates/schema/templates.schema';
+import { languajes } from 'src/languaje/langs';
+import {
+  ProcessorsSiteDomainCLass,
+  ProcessorsSiteDomainDocument,
+} from 'src/processors-site-domain/schema/processors-site-domain.schema';
+import {
+  Processor,
+  ProcessorDocument,
+} from 'src/processors/schema/processors.schema';
 
 @Injectable()
 export class PaymentTokenService {
@@ -23,6 +34,12 @@ export class PaymentTokenService {
     @InjectModel(Site.name)
     private siteModel: Model<SiteDocument>,
     private readonly httpService: HttpService,
+    @InjectModel(Template.name)
+    private templateModel: Model<TemplateDocument>,
+    @InjectModel(ProcessorsSiteDomainCLass.name)
+    private processorsSiteDomainModel: Model<ProcessorsSiteDomainDocument>,
+    @InjectModel(Processor.name)
+    private processorModel: Model<ProcessorDocument>,
   ) {}
   async enviarToken(datos: any, url: string): Promise<any> {
     try {
@@ -150,7 +167,69 @@ export class PaymentTokenService {
     if (tokenpayment.paid) {
       throw new NotFoundException(`token ${getTokenDto.token_url} is paid`);
     }
-    return true;
+    //voy a retornar de una vez los datos del sitio
+    //necesito buscar por el public key el sitio
+    //necesito buscar el template cuando hay uno o mas procesadores activos
+    const site = await this.siteModel.findOne({
+      public_key: tokenpayment.public_key,
+    });
+    if (!site) {
+      throw new NotFoundException(
+        `site with public key ${tokenpayment.public_key} not found`,
+      );
+    }
+    const templateIndividual = site.template_individual;
+    const templateMultiple = site.template_multiple;
+    let templateSelected = '';
+    //necesito saber cuantos procesadores tiene activo este sitio
+    const processorsSite = await this.processorsSiteDomainModel.find({
+      site_id: site.id,
+    });
+    if (!processorsSite) {
+      throw new NotFoundException(`processorsSite with side id  not found`);
+    }
+    if (processorsSite.length > 0) {
+      templateSelected = templateMultiple;
+    } else {
+      templateSelected = templateIndividual;
+    }
+    //ahora a buscar mi template
+    const getTemplate = await this.templateModel.findById(templateSelected);
+    console.log('getTemplate', getTemplate);
+    if (!getTemplate) {
+      throw new NotFoundException(`Template with  id  not found`);
+    }
+    //me falta el languaje
+    let languaje = {};
+    if (site.language == 'English') {
+      languaje = languajes.English;
+    }
+    if (site.language == 'French') {
+      languaje = languajes.French;
+    }
+    //ahora los procesadores
+    const processors = [];
+    for (const item of processorsSite) {
+      const processor = await this.processorModel.findById(item.processor_id);
+      processors.push({
+        id: processor._id,
+        name: processor.name,
+        image: processor.image,
+        fee: processor.fee,
+        identy: processor.identy,
+      });
+    }
+    //ya aqui tengo todo me parece
+
+    return {
+      languaje: languaje,
+      nameStore: 'Test Name Store',
+      invoice: tokenpayment.invoice,
+      amount: tokenpayment.amount,
+      currency: tokenpayment.currency,
+      processors: processors,
+      template: getTemplate.html,
+    };
   }
 
   findAll() {
