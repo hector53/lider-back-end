@@ -6,9 +6,6 @@ export class CreateTemplateInput {
   name: string;
 
   @Field()
-  slug: string;
-
-  @Field()
   html: string;
 
   @Field()

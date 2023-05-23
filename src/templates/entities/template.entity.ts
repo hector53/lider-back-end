@@ -2,18 +2,38 @@ import { ObjectType, Field } from '@nestjs/graphql';
 
 @ObjectType()
 export class Template {
-  @Field({ nullable: true })
-  _id?: string;
+  @Field()
+  _id: string;
 
   @Field()
   name: string;
 
   @Field()
-  slug: string;
+  html: string;
 
   @Field()
-  type: string;
+  type: number;
+}
+@ObjectType()
+export class TemplatePagination {
+  @Field(() => [Template])
+  templates: Template[];
 
   @Field()
-  active: boolean;
+  count: number;
+
+  @Field()
+  totalPages: number;
+
+  @Field({ nullable: true })
+  hasNextPage: boolean;
+
+  @Field({ nullable: true })
+  hasPreviousPage: boolean;
+
+  @Field({ nullable: true })
+  nextPage: number;
+
+  @Field({ nullable: true })
+  previousPage: number;
 }

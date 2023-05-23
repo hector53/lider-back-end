@@ -1,8 +1,10 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { TemplatesService } from './templates.service';
-import { Template } from './entities/template.entity';
+import { Template, TemplatePagination } from './entities/template.entity';
 import { CreateTemplateInput } from './dto/create-template.input';
 import { UpdateTemplateInput } from './dto/update-template.input';
+import { UseGuards } from '@nestjs/common';
+import { JWTAuthGuardHql } from 'src/auth/jwt-guardhql.guard';
 
 @Resolver(() => Template)
 export class TemplatesResolver {
@@ -15,9 +17,14 @@ export class TemplatesResolver {
     return this.templatesService.create(createTemplateInput);
   }
 
-  @Query(() => [Template], { name: 'templates' })
-  findAll() {
-    return this.templatesService.findAll();
+  @Query(() => TemplatePagination, { name: 'templates' })
+  @UseGuards(JWTAuthGuardHql)
+  findAll(
+    @Args('page') page: number,
+    @Args('limit') limit: number,
+    @Args('search') search: string,
+  ) {
+    return this.templatesService.findAll(page, limit, search);
   }
 
   @Query(() => [Template], { name: 'templatesIndividual' })
@@ -35,18 +42,16 @@ export class TemplatesResolver {
     return this.templatesService.findOne(id);
   }
 
-  @Mutation(() => Template)
-  updateTemplate(
+  @Mutation(() => Template, { name: 'templateUpdate' })
+  async updateTemplate(
     @Args('updateTemplateInput') updateTemplateInput: UpdateTemplateInput,
   ) {
-    return this.templatesService.update(
-      updateTemplateInput.id,
-      updateTemplateInput,
-    );
+    // Guarda la instancia de la entidad en la base de datos
+    return this.templatesService.update(updateTemplateInput);
   }
 
   @Mutation(() => Template)
-  removeTemplate(@Args('id', { type: () => Int }) id: number) {
+  removeTemplate(@Args('id') id: string) {
     return this.templatesService.remove(id);
   }
 }

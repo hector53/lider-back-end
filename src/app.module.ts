@@ -14,6 +14,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { TemplatesModule } from './templates/templates.module';
 import { ProcessorsSiteDomainModule } from './processors-site-domain/processors-site-domain.module';
+import { PaymentTokenModule } from './payment_token/payment_token.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ProcessorsSiteDomainModule } from './processors-site-domain/processors-
     SitesModule,
     TemplatesModule,
     ProcessorsSiteDomainModule,
+    PaymentTokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

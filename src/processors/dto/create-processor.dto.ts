@@ -4,6 +4,9 @@ export class CreateProcessorDto {
   name: string;
 
   @IsNotEmpty()
+  identy: string;
+
+  @IsNotEmpty()
   description: string;
 
   @IsNotEmpty()

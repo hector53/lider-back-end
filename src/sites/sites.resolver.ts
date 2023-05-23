@@ -8,6 +8,8 @@ import { UpdateSiteActiveInput } from './dto/update-site-active.input';
 import { UseGuards } from '@nestjs/common';
 import { JWTAuthGuardHql } from 'src/auth/jwt-guardhql.guard';
 import { JWTAuthGuardHqlUser } from 'src/auth/jwt-guardhqlUser';
+import { Languaje } from './entities/languaje.entity';
+import { Processor } from './entities/processors.entity';
 
 @Resolver(() => Site)
 export class SitesResolver {
@@ -53,6 +55,17 @@ export class SitesResolver {
     return this.sitesService.findAll(page, limit, search);
   }
 
+  @Query(() => Languaje, { name: 'languajes' })
+  getlanguaje(@Args('lang') lang: string) {
+    console.log('probando query');
+    return this.sitesService.getLanguaje(lang);
+  }
+
+  @Query(() => [Processor], { name: 'processorsTemplate' })
+  getProcessors() {
+    return this.sitesService.getProcessors();
+  }
+
   @Query(() => Site, { name: 'site' })
   @UseGuards(JWTAuthGuardHql)
   findOne(@Args('id', { type: () => Int }) id: number) {
@@ -69,5 +82,10 @@ export class SitesResolver {
   @UseGuards(JWTAuthGuardHql)
   removeSite(@Args('id') id: string) {
     return this.sitesService.remove(id);
+  }
+
+  @Query(() => Site, { name: 'languaje' })
+  getLanguaje(@Args('lang') lang: string) {
+    return this.sitesService.getLanguaje(lang);
   }
 }

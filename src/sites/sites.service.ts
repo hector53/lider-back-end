@@ -4,12 +4,17 @@ import { UpdateSiteInput } from './dto/update-site.input';
 import { Site, SiteDocument } from './schema/sites.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { generarCodigoAleatorio } from 'src/utils/coderandom.utils';
+
 import {
   ProcessorsSiteDomainCLass,
   ProcessorsSiteDomainDocument,
 } from 'src/processors-site-domain/schema/processors-site-domain.schema';
 import { UpdateSiteActiveInput } from './dto/update-site-active.input';
+import { languajes } from 'src/languaje/langs';
+import {
+  Processor,
+  ProcessorDocument,
+} from 'src/processors/schema/processors.schema';
 
 @Injectable()
 export class SitesService {
@@ -18,6 +23,8 @@ export class SitesService {
     private siteModel: Model<SiteDocument>,
     @InjectModel(ProcessorsSiteDomainCLass.name)
     private processorsSiteDomainModel: Model<ProcessorsSiteDomainDocument>,
+    @InjectModel(Processor.name)
+    private processorModel: Model<ProcessorDocument>,
   ) {}
   create(createSiteInput: CreateSiteInput) {
     return this.siteModel.create(createSiteInput);
@@ -136,6 +143,25 @@ export class SitesService {
       nextPage,
       previousPage,
     };
+  }
+
+  getLanguaje(lang: string) {
+    if (lang == 'English') {
+      return languajes.English;
+    } else if (lang == 'French') {
+      return languajes.French;
+    }
+  }
+
+  async getProcessors() {
+    const processors = await this.processorModel.find({ active: true });
+    for (const item of processors) {
+      if (item.identy == 'stripe') {
+        item.name = 'Pay with card';
+      }
+    }
+    console.log('processors', processors);
+    return processors;
   }
 
   findOne(id: number) {

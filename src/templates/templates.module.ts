@@ -3,6 +3,7 @@ import { TemplatesService } from './templates.service';
 import { TemplatesResolver } from './templates.resolver';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Template, TemplateSchema } from './schema/templates.schema';
+import { TemplatesController } from './templates.controller';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Template, TemplateSchema } from './schema/templates.schema';
       },
     ]),
   ],
+  controllers: [TemplatesController],
   providers: [TemplatesResolver, TemplatesService],
 })
 export class TemplatesModule {}

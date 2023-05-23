@@ -7,9 +7,6 @@ export class Template {
   name: string;
 
   @Prop()
-  slug: string;
-
-  @Prop()
   html: string;
 
   @Prop()
@@ -20,9 +17,6 @@ export class Template {
 
   @Prop({ type: Date, default: Date.now })
   updated: Date;
-
-  @Prop({ default: true })
-  active: boolean;
 }
 
 export type TemplateDocument = Template & Document & { active: boolean };
@@ -34,8 +28,6 @@ TemplateSchema.pre<TemplateDocument>('save', function (next) {
   if (!this.created) {
     this.created = now;
   }
-  if (this.isNew && this.active === undefined) {
-    this.active = true;
-  }
+
   next();
 });
