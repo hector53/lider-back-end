@@ -155,13 +155,23 @@ export class SitesService {
 
   async getProcessors() {
     const processors = await this.processorModel.find({ active: true });
+    const arrayProcessors = [];
     for (const item of processors) {
       if (item.identy == 'stripe') {
         item.name = 'Pay with card';
       }
+      const objP = {
+        _id: item._id,
+        name: item.name,
+        image: item.image,
+        identy: item.identy,
+        fee: item.fee,
+        fee_type: '%',
+      };
+      arrayProcessors.push(objP);
     }
-    console.log('processors', processors);
-    return processors;
+    console.log('processors', arrayProcessors);
+    return arrayProcessors;
   }
 
   findOne(id: number) {

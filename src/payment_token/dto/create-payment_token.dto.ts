@@ -11,6 +11,4 @@ export class CreatePaymentTokenDto {
 
   @IsNotEmpty()
   key: string;
-
-  template: number;
 }

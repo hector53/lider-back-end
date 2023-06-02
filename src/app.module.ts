@@ -15,6 +15,7 @@ import { ApolloDriver } from '@nestjs/apollo';
 import { TemplatesModule } from './templates/templates.module';
 import { ProcessorsSiteDomainModule } from './processors-site-domain/processors-site-domain.module';
 import { PaymentTokenModule } from './payment_token/payment_token.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PaymentTokenModule } from './payment_token/payment_token.module';
     TemplatesModule,
     ProcessorsSiteDomainModule,
     PaymentTokenModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

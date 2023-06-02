@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { generarCodigoAleatorio } from 'src/utils/coderandom.utils';
 
 @Schema()
 export class PaymentToken {
@@ -19,20 +18,29 @@ export class PaymentToken {
   @Prop({ required: true })
   token: string;
 
-  @Prop({ default: '' })
-  processor_id: string;
-
-  @Prop({ default: 1 })
-  template: number;
-
-  @Prop({ default: '' })
-  receipt_url: string;
+  @Prop({ required: true })
+  assigned_user: string;
 
   @Prop({ default: false })
   paid: boolean;
 
   @Prop({ required: true })
   domain_id: string;
+
+  @Prop({ default: '' })
+  processor_identy: string;
+
+  @Prop({ default: '' })
+  receipt_url: string;
+
+  @Prop({ default: 0 })
+  fee: number;
+
+  @Prop({ default: 0 })
+  net_amount: number;
+
+  @Prop({ default: 0 })
+  amount_conversion: number;
 
   @Prop({ type: Date, default: Date.now })
   created: Date;

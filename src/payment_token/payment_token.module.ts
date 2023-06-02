@@ -20,6 +20,11 @@ import {
   Processor,
   ProcessorSchema,
 } from 'src/processors/schema/processors.schema';
+import { PaymentTokenResolver } from './payment_token.resolver';
+import {
+  DomainProcessors,
+  DomainProcessorsSchema,
+} from 'src/domains_processors/schema/domains_processors.schema';
 
 @Module({
   imports: [
@@ -55,9 +60,13 @@ import {
         name: Processor.name,
         schema: ProcessorSchema,
       },
+      {
+        name: DomainProcessors.name,
+        schema: DomainProcessorsSchema,
+      },
     ]),
   ],
   controllers: [PaymentTokenController],
-  providers: [PaymentTokenService],
+  providers: [PaymentTokenService, PaymentTokenResolver],
 })
 export class PaymentTokenModule {}
