@@ -10,6 +10,9 @@ export class Site {
   site: string;
 
   @Field({ nullable: true })
+  nameStore: string;
+
+  @Field({ nullable: true })
   amounts?: string;
 
   @Field({ nullable: true })
@@ -32,6 +35,9 @@ export class Site {
 
   @Field({ nullable: true })
   language?: string;
+
+  @Field({ nullable: true })
+  success_url?: string;
 
   @Field(() => [String]) // especifica que currency es un array de string
   currency: string[];

@@ -32,7 +32,13 @@ export class ProcessorsSiteDomain {
   custom_fee: number;
 
   @Field()
+  hosted: boolean;
+
+  @Field()
   processor_name: string;
+
+  @Field()
+  processor_identy: string;
 
   @Field()
   processor_image: string;

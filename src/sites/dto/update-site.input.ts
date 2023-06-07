@@ -23,6 +23,9 @@ export class ProcessorsSiteDomain2 {
   custom_fee: number;
 
   @Field()
+  hosted: boolean;
+
+  @Field()
   active: boolean;
 }
 
@@ -33,6 +36,9 @@ export class UpdateSiteInput {
 
   @Field()
   site: string;
+
+  @Field()
+  nameStore: string;
 
   @Field({ nullable: true })
   amounts?: string;
@@ -57,6 +63,9 @@ export class UpdateSiteInput {
 
   @Field({ nullable: true })
   language?: string;
+
+  @Field({ nullable: true })
+  success_url?: string;
 
   @Field(() => [String]) // especifica que currency es un array de string
   currency: string[];

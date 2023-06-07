@@ -26,4 +26,7 @@ export class CreateProcessorsSiteDomainInput {
 
   @Field()
   custom_fee: number;
+
+  @Field()
+  hosted: boolean;
 }

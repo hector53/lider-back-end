@@ -29,6 +29,9 @@ export class ProcessorsSiteDomainCLass {
   @Prop({ required: true })
   custom_fee: number;
 
+  @Prop({ default: false })
+  hosted: boolean;
+
   @Prop({ type: Date, default: Date.now })
   created: Date;
 

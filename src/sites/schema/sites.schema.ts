@@ -7,6 +7,9 @@ export class Site {
   @Prop()
   site: string;
 
+  @Prop()
+  nameStore: string;
+
   @Prop({ default: null })
   amounts: string;
 
@@ -30,6 +33,9 @@ export class Site {
 
   @Prop({ default: null })
   language: string;
+
+  @Prop({ default: null })
+  success_url: string;
 
   @Prop({ type: [String], default: [] })
   currency: string[];

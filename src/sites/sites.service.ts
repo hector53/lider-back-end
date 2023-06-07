@@ -103,6 +103,7 @@ export class SitesService {
         $project: {
           _id: 1,
           site: 1,
+          nameStore: 1,
           amounts: 1,
           webhook: 1,
           fee_quantity: 1,
@@ -111,6 +112,7 @@ export class SitesService {
           template_individual: 1,
           template_multiple: 1,
           language: 1,
+          success_url: 1,
           currency: 1,
           processorsSites: 1,
           domain_id: 1,
@@ -213,6 +215,7 @@ export class SitesService {
       {
         $set: {
           site: updateSiteInput.site,
+          nameStore: updateSiteInput.nameStore,
           amounts: updateSiteInput.amounts,
           fee_quantity: updateSiteInput.fee_quantity,
           webhook: updateSiteInput.webhook,
@@ -221,6 +224,7 @@ export class SitesService {
           template_individual: updateSiteInput.template_individual,
           template_multiple: updateSiteInput.template_multiple,
           language: updateSiteInput.language,
+          success_url: updateSiteInput.success_url,
           currency: updateSiteInput.currency,
         },
       },
@@ -234,6 +238,7 @@ export class SitesService {
           $set: {
             fee_extra: item.fee_extra,
             custom_fee: item.custom_fee,
+            hosted: item.hosted,
             active: item.active,
           },
         },

@@ -47,6 +47,7 @@ export class ProcessorsSiteDomainService {
               $project: {
                 _id: 0,
                 name: 1,
+                identy: 1,
                 description: 1,
                 fee: 1,
                 image: 1,
@@ -66,8 +67,10 @@ export class ProcessorsSiteDomainService {
           site_id: 1,
           fee_extra: 1,
           custom_fee: 1,
+          hosted: 1,
           active: 1,
           processor_name: { $arrayElemAt: ['$processor.name', 0] },
+          processor_identy: { $arrayElemAt: ['$processor.identy', 0] },
           processor_fee: { $arrayElemAt: ['$processor.fee', 0] },
           processor_image: { $arrayElemAt: ['$processor.image', 0] },
         },
@@ -105,6 +108,7 @@ export class ProcessorsSiteDomainService {
           fee_extra: { type: '%', value: 0 },
           processor_domain_id: item._id,
           processor_id: item.processor_id,
+          hosted: false,
         };
         await this.create(itemSite);
       }
@@ -145,6 +149,7 @@ export class ProcessorsSiteDomainService {
               fee_extra: { type: '%', value: 0 },
               processor_domain_id: item._id,
               processor_id: item.processor_id,
+              hosted: false,
             };
             await this.create(itemSite);
           }

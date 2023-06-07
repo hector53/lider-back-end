@@ -31,6 +31,7 @@ import {
   DomainProcessorsDocument,
 } from 'src/domains_processors/schema/domains_processors.schema';
 import { UpdateTokenDto } from './dto/update-token.dto';
+import * as https from 'https';
 
 @Injectable()
 export class PaymentTokenService {
@@ -52,7 +53,12 @@ export class PaymentTokenService {
   ) {}
   async enviarToken(datos: any, url: string): Promise<any> {
     try {
-      const respuesta = await this.httpService.axiosRef.post(url, datos);
+      const httpsAgent = new https.Agent({
+        rejectUnauthorized: false,
+      });
+      const respuesta = await this.httpService.axiosRef.post(url, datos, {
+        httpsAgent,
+      });
       console.log('respuesta', respuesta);
       return true;
     } catch (error) {
@@ -169,6 +175,17 @@ export class PaymentTokenService {
         `Processor site with id ${getProcessorDto.id_processor} not found`,
       );
     }
+
+    //necesito el url success del site
+    const site = await this.siteModel.findOne({
+      _id: processorsSite.site_id,
+    });
+    if (!site) {
+      throw new NotFoundException(
+        `site with id ${processorsSite.site_id} not found`,
+      );
+    }
+
     //ahora necesito el processor domain para el piublic key y secret key
     const domainProcessor = await this.domainProcessorsModel.findOne({
       _id: processorsSite.processor_domain_id,
@@ -191,6 +208,7 @@ export class PaymentTokenService {
       secret_key: domainProcessor.private_key,
       fee_extra: processorsSite.fee_extra,
       custom_fee: custom_fee,
+      success_url: site.success_url,
     };
 
     //entonces ahora si armo la salida
@@ -242,6 +260,7 @@ export class PaymentTokenService {
     //ahora a buscar el tokenpayment pa ver si es verdad que existe
     const tokenpayment = await this.PaymentTokenModel.findOne({
       token: getTokenDto.token_url,
+      paid: false,
     });
     if (!tokenpayment) {
       throw new NotFoundException(`token ${getTokenDto.token_url} not found`);
@@ -300,13 +319,14 @@ export class PaymentTokenService {
         fee_type: item.fee_extra.type,
         fee: item.fee_extra.value,
         identy: processor.identy,
+        hosted: item.hosted,
       });
     }
     //ya aqui tengo todo me parece
 
     return {
       languaje: languaje,
-      nameStore: 'Test Name Store',
+      nameStore: site.nameStore,
       invoice: tokenpayment.invoice,
       amount: tokenpayment.amount,
       currency: tokenpayment.currency,
