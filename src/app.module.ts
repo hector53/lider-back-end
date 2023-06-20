@@ -16,6 +16,8 @@ import { TemplatesModule } from './templates/templates.module';
 import { ProcessorsSiteDomainModule } from './processors-site-domain/processors-site-domain.module';
 import { PaymentTokenModule } from './payment_token/payment_token.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { WalletModule } from './wallet/wallet.module';
+import { WithdrawsModule } from './withdraws/withdraws.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ProcessorsSiteDomainModule,
     PaymentTokenModule,
     DashboardModule,
+    WalletModule,
+    WithdrawsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

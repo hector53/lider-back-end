@@ -16,23 +16,43 @@ export class DashboardService {
     private PaymentTokenModel: Model<PaymentTokenDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
-  async findPaymentsByAdmin(page: number, limit: number, search: string) {
+  async findPaymentsByAdmin(
+    page: number,
+    limit: number,
+    search: string,
+    user_id: string,
+  ) {
     console.log('-------------------------------');
+    const user = await this.userModel.findById(user_id);
+
     page = Number(page);
     limit = Number(limit);
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     console.log('endIndex', endIndex);
-    const query = search
-      ? {
-          paid: true,
-          $or: [
-            { processor_identy: { $regex: search, $options: 'i' } },
-            { 'assigned_user.fullName': { $regex: search, $options: 'i' } },
-            { 'assigned_user.email': { $regex: search, $options: 'i' } },
-          ],
-        }
-      : { paid: true };
+    let query;
+    const query1 = {
+      paid: true,
+      assigned_user: user_id,
+      $or: [
+        { processor_identy: { $regex: search, $options: 'i' } },
+        { 'assigned_user.fullName': { $regex: search, $options: 'i' } },
+        { 'assigned_user.email': { $regex: search, $options: 'i' } },
+      ],
+    };
+    const query2 = {
+      paid: true,
+      $or: [
+        { processor_identy: { $regex: search, $options: 'i' } },
+        { 'assigned_user.fullName': { $regex: search, $options: 'i' } },
+        { 'assigned_user.email': { $regex: search, $options: 'i' } },
+      ],
+    };
+    if (user.role == 'admin') {
+      query = query2;
+    } else {
+      query = query1;
+    }
 
     const payments = await this.PaymentTokenModel.aggregate([
       { $match: query },
@@ -144,7 +164,7 @@ export class DashboardService {
     //ahora recorro y saco el calculo
     let countAmount = 0;
     for (const item of payments) {
-      countAmount += item.net_amount;
+      countAmount += item.amount_conversion;
     }
     return {
       value: countAmount,
@@ -186,7 +206,7 @@ export class DashboardService {
     //ahora recorro y saco el calculo
     let countAmount = 0;
     for (const item of payments) {
-      countAmount += item.net_amount;
+      countAmount += item.amount_conversion;
     }
     return {
       value: countAmount,
@@ -223,7 +243,7 @@ export class DashboardService {
     //ahora recorro y saco el calculo
     let countAmount = 0;
     for (const item of payments) {
-      countAmount += item.net_amount;
+      countAmount += item.amount_conversion;
     }
     return {
       value: countAmount,

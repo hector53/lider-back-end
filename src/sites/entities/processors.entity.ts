@@ -18,4 +18,7 @@ export class Processor {
 
   @Field({ nullable: true })
   fee_type: string;
+
+  @Field({ nullable: true })
+  fee_extra: number;
 }

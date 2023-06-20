@@ -17,8 +17,14 @@ export class DashboardResolver {
     @Args('page') page: number,
     @Args('limit') limit: number,
     @Args('search') search: string,
+    @Args('user_id') user_id: string,
   ) {
-    return this.dashboardService.findPaymentsByAdmin(page, limit, search);
+    return this.dashboardService.findPaymentsByAdmin(
+      page,
+      limit,
+      search,
+      user_id,
+    );
   }
 
   @Query(() => DailySales, { name: 'dailySales' })

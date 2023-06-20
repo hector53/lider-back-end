@@ -169,6 +169,7 @@ export class SitesService {
         identy: item.identy,
         fee: item.fee,
         fee_type: '%',
+        fee_extra: 5,
       };
       arrayProcessors.push(objP);
     }

@@ -10,10 +10,13 @@ export class UpdateTokenDto {
   identy: string;
 
   @IsNotEmpty()
-  fee: number;
+  fee_extra: number;
 
   @IsNotEmpty()
   net_amount: number;
+
+  @IsNotEmpty()
+  custom_fee: number;
 
   @IsNotEmpty()
   amount_conversion: number;

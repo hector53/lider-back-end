@@ -228,15 +228,17 @@ export class PaymentTokenService {
     }
 
     //ahora buscamos el token payment y actualizamos
+    //necesito los datos del token completos para sacar el id del sitio
     const tokenPayment = await this.PaymentTokenModel.findByIdAndUpdate(
       updateTokenDto.lider_token_id,
       {
         paid: true,
-        fee: updateTokenDto.fee,
+        fee: updateTokenDto.custom_fee,
         net_amount: updateTokenDto.net_amount,
         amount_conversion: updateTokenDto.amount_conversion,
         receipt_url: updateTokenDto.receipt_url,
         processor_identy: updateTokenDto.identy,
+        fee_extra: updateTokenDto.fee_extra,
       },
     );
     if (!tokenPayment) {
@@ -244,6 +246,22 @@ export class PaymentTokenService {
         `tokenPayment with id ${updateTokenDto.lider_token_id} not found`,
       );
     }
+    //ahora preparamos el objeto para enviar al webhook correspondiente
+    //pero necesitamos saber el webhook
+    const site = await this.siteModel.findOne({
+      public_key: tokenPayment.public_key,
+    });
+    const webhookSite = site.webhook;
+
+    const objSend = {
+      amount: tokenPayment.net_amount,
+      currency: tokenPayment.currency,
+      invoice: tokenPayment.invoice,
+      status: 'paid',
+      processor: tokenPayment.processor_identy,
+      token: site.private_key,
+    };
+    await this.enviarToken(objSend, webhookSite);
     return true;
   }
 
@@ -312,12 +330,17 @@ export class PaymentTokenService {
     const processors = [];
     for (const item of processorsSite) {
       const processor = await this.processorModel.findById(item.processor_id);
+      let customFee = item.custom_fee;
+      if (customFee == 0) {
+        customFee = processor.fee;
+      }
       processors.push({
         id: item._id,
         name: processor.name,
         image: processor.image,
         fee_type: item.fee_extra.type,
-        fee: item.fee_extra.value,
+        fee_extra: item.fee_extra.value,
+        fee: customFee,
         identy: processor.identy,
         hosted: item.hosted,
       });

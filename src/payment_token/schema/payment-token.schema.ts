@@ -37,6 +37,9 @@ export class PaymentToken {
   fee: number;
 
   @Prop({ default: 0 })
+  fee_extra: number;
+
+  @Prop({ default: 0 })
   net_amount: number;
 
   @Prop({ default: 0 })

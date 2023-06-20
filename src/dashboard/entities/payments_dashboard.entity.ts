@@ -45,6 +45,9 @@ export class PaymentsDashboard {
   fee: number;
 
   @Field()
+  fee_extra: number;
+
+  @Field()
   net_amount: number;
 
   @Field()
