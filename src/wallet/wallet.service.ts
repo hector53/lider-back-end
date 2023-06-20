@@ -129,14 +129,27 @@ export class WalletService {
 
   updateWallerUser(id: string, updateWalletInput: UpdateWalletInput) {
     console.log('updateWalletInput', updateWalletInput);
-    return this.walletModel.findByIdAndUpdate(id, {
-      type: updateWalletInput.type,
-      wallet: updateWalletInput.wallet,
-      detailsWire: updateWalletInput.detailsWire,
-      detailsCrypto: updateWalletInput.detailsCrypto,
-      typeEwallet: updateWalletInput.typeEwallet,
-      active: false,
-    });
+
+    if (id != '') {
+      return this.walletModel.findByIdAndUpdate(id, {
+        type: updateWalletInput.type,
+        wallet: updateWalletInput.wallet,
+        detailsWire: updateWalletInput.detailsWire,
+        detailsCrypto: updateWalletInput.detailsCrypto,
+        typeEwallet: updateWalletInput.typeEwallet,
+        active: false,
+      });
+    } else {
+      return this.walletModel.create({
+        type: updateWalletInput.type,
+        wallet: updateWalletInput.wallet,
+        detailsWire: updateWalletInput.detailsWire,
+        detailsCrypto: updateWalletInput.detailsCrypto,
+        typeEwallet: updateWalletInput.typeEwallet,
+        active: true,
+        user_id: updateWalletInput.user_id,
+      });
+    }
   }
 
   remove(id: string) {
