@@ -22,6 +22,9 @@ export class CreateProcessorsSiteDomainInput {
   processor_id: string;
 
   @Field()
+  identy: string;
+
+  @Field()
   fee_extra: FEE_EXTRA_INPUT;
 
   @Field()

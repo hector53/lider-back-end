@@ -108,6 +108,7 @@ export class ProcessorsSiteDomainService {
           fee_extra: { type: '%', value: 0 },
           processor_domain_id: item._id,
           processor_id: item.processor_id,
+          identy: item.identy,
           hosted: false,
         };
         await this.create(itemSite);
@@ -141,7 +142,7 @@ export class ProcessorsSiteDomainService {
             item,
             processorsSiteDomains,
           );
-          if (similar) {
+          if (similar == false) {
             const itemSite: CreateProcessorsSiteDomainInput = {
               site_id: site_id,
               domain_id: domain_id,
@@ -149,6 +150,7 @@ export class ProcessorsSiteDomainService {
               fee_extra: { type: '%', value: 0 },
               processor_domain_id: item._id,
               processor_id: item.processor_id,
+              identy: item.identy,
               hosted: false,
             };
             await this.create(itemSite);
@@ -168,12 +170,16 @@ export class ProcessorsSiteDomainService {
     item: CreateDomainsProcessorDto,
     arrayProcessors: [CreateProcessorsSiteDomainInput] | any,
   ) {
+    console.log('buenos vamos a comparar: ', item, arrayProcessors);
+    let igual = false;
     for (const processor of arrayProcessors) {
-      if (item._id != processor.processor_domain_id) {
-        return true;
+      console.log('if ', item.identy, '=', processor.processor_identy);
+      if (item.identy == processor.processor_identy) {
+        console.log('no es igual entonces lo agrego');
+        igual = true;
       }
     }
-    return false;
+    return igual;
   }
 
   findAll() {

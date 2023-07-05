@@ -136,6 +136,7 @@ export class DomainsProcessorsService {
                 $project: {
                   _id: 0,
                   name: 1,
+                  identy: 1,
                   description: 1,
                   fee: 1,
                   image: 1,
@@ -155,6 +156,7 @@ export class DomainsProcessorsService {
             active: 1,
             created: 1,
             updated: 1,
+            identy: { $arrayElemAt: ['$processor.identy', 0] },
             processor_name: { $arrayElemAt: ['$processor.name', 0] },
             processor_description: {
               $arrayElemAt: ['$processor.description', 0],

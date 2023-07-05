@@ -59,6 +59,9 @@ export class DashboardService {
       { $skip: startIndex },
       { $limit: limit },
       {
+        $sort: { created: -1 },
+      },
+      {
         $lookup: {
           from: 'processors',
           let: { identyP: '$processor_identy' },

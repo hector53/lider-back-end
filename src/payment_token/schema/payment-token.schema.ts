@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
+import * as moment from 'moment-timezone';
 @Schema()
 export class PaymentToken {
   @Prop({ required: true })
@@ -58,9 +58,14 @@ export const PaymentTokenSchema = SchemaFactory.createForClass(PaymentToken);
 
 PaymentTokenSchema.pre<PaymentTokenDocument>('save', function (next) {
   const now = new Date();
-  this.updated = now;
+  console.log('Fecha y hora actual:', now.toLocaleString());
+  const nyTime = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+  const nowNew = new Date(Date.parse(nyTime));
+  console.log('Fecha y hora en Nueva York:', nowNew);
+
+  this.updated = nowNew;
   if (!this.created) {
-    this.created = now;
+    this.created = nowNew;
   }
   if (this.isNew && this.active === undefined) {
     this.paid = false;

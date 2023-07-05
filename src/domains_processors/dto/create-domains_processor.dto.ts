@@ -5,6 +5,8 @@ export class CreateDomainsProcessorDto {
   @IsNotEmpty()
   processor_id: string;
 
+  identy: string;
+
   domain_id: string;
 
   public_key: string;

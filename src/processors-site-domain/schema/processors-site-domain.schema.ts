@@ -23,6 +23,9 @@ export class ProcessorsSiteDomainCLass {
   @Prop({ required: true })
   processor_id: string;
 
+  @Prop({ required: true })
+  identy: string;
+
   @Prop()
   fee_extra: FEE_EXTRA; // especifica el tipo de fee_extra como un objeto
 

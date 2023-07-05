@@ -32,6 +32,7 @@ import {
 } from 'src/domains_processors/schema/domains_processors.schema';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import * as https from 'https';
+import { SiteprocessorDto } from './dto/site-procesor.dto';
 
 @Injectable()
 export class PaymentTokenService {
@@ -166,49 +167,115 @@ export class PaymentTokenService {
 
   async getProcessorData(getProcessorDto: GetProcessorDto) {
     console.log('getProcessorDto', getProcessorDto);
-    //con el id del procesador del sitio puedo tener el id del procesador del dominio
-    const processorsSite = await this.processorsSiteDomainModel.findOne({
-      _id: getProcessorDto.id_processor,
-    });
-    if (!processorsSite) {
+    //ahora voy a buscar los datos del sitio con la public key del sitio
+
+    const siteProcessor: SiteprocessorDto | any =
+      await this.siteModel.aggregate([
+        {
+          $match: { public_key: getProcessorDto.public_key },
+        },
+        {
+          $lookup: {
+            from: 'processorssitedomainclasses',
+            let: {
+              site_id: { $toString: '$_id' },
+              assigned_domain: '$assigned_domain',
+              identy: getProcessorDto.identy,
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$site_id', '$$site_id'] },
+                      { $eq: ['$domain_id', '$$assigned_domain'] },
+                      { $eq: ['$identy', '$$identy'] }, // nueva condición
+                    ],
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  identy: 1,
+                  fee_extra: 1,
+                  custom_fee: 1,
+                  hosted: 1,
+                  processor_id: 1,
+                  processor_domain_id: 1,
+                },
+              },
+            ],
+            as: 'processor',
+          },
+        },
+        {
+          $lookup: {
+            from: 'domainprocessors',
+            let: {
+              processor_domain_id: {
+                $arrayElemAt: ['$processor.processor_domain_id', 0],
+              },
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', { $toObjectId: '$$processor_domain_id' }],
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  public_key: 1,
+                  private_key: 1,
+                },
+              },
+            ],
+            as: 'domain',
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            success_url: 1,
+            identy: { $arrayElemAt: ['$processor.identy', 0] },
+            fee_extra: { $arrayElemAt: ['$processor.fee_extra', 0] },
+            custom_fee: { $arrayElemAt: ['$processor.custom_fee', 0] },
+            hosted: { $arrayElemAt: ['$processor.hosted', 0] },
+            processor_id: { $arrayElemAt: ['$processor.processor_id', 0] },
+            public_key: { $arrayElemAt: ['$domain.public_key', 0] },
+            private_key: { $arrayElemAt: ['$domain.private_key', 0] },
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ]);
+
+    console.log('siteProcessor', siteProcessor[0]);
+
+    if (!siteProcessor) {
       throw new NotFoundException(
-        `Processor site with id ${getProcessorDto.id_processor} not found`,
+        `Processor site with public_key ${getProcessorDto.public_key} not found`,
       );
     }
 
-    //necesito el url success del site
-    const site = await this.siteModel.findOne({
-      _id: processorsSite.site_id,
-    });
-    if (!site) {
-      throw new NotFoundException(
-        `site with id ${processorsSite.site_id} not found`,
-      );
-    }
-
-    //ahora necesito el processor domain para el piublic key y secret key
-    const domainProcessor = await this.domainProcessorsModel.findOne({
-      _id: processorsSite.processor_domain_id,
-    });
-    if (!domainProcessor) {
-      throw new NotFoundException(
-        `Domain processor with id ${processorsSite.processor_domain_id} not found`,
-      );
-    }
     //necesito el custom fee, si esta en 0 debo buscar el de processor general
-    let custom_fee = processorsSite.custom_fee;
+    let custom_fee = siteProcessor[0].custom_fee;
     if (custom_fee == 0) {
       const processor = await this.processorModel.findOne({
-        _id: processorsSite.processor_id,
+        _id: siteProcessor[0].processor_id,
       });
       custom_fee = processor.fee;
     }
     const result = {
-      public_key: domainProcessor.public_key,
-      secret_key: domainProcessor.private_key,
-      fee_extra: processorsSite.fee_extra,
+      public_key: siteProcessor[0].public_key,
+      secret_key: siteProcessor[0].private_key,
+      fee_extra: siteProcessor[0].fee_extra,
       custom_fee: custom_fee,
-      success_url: site.success_url,
+      success_url: siteProcessor[0].success_url,
     };
 
     //entonces ahora si armo la salida
@@ -303,6 +370,7 @@ export class PaymentTokenService {
     //necesito saber cuantos procesadores tiene activo este sitio
     const processorsSite = await this.processorsSiteDomainModel.find({
       site_id: site.id,
+      active: true,
     });
     if (!processorsSite) {
       throw new NotFoundException(`processorsSite with side id  not found`);
