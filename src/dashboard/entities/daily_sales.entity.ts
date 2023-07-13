@@ -19,6 +19,11 @@ export class MonthlySales {
 
   @Field()
   ordenes: number;
+
+  @Field()
+  ordenesPrevious: number;
+  @Field()
+  porcentajeOrdenes: number;
 }
 
 @ObjectType()

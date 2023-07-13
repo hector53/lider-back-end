@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ArgsType,
+  Field,
+} from '@nestjs/graphql';
 import { DashboardService } from './dashboard.service';
 import { Dashboard } from './entities/dashboard.entity';
 import { DashboardPagination } from './entities/payments_dashboard.entity';
@@ -7,6 +15,20 @@ import {
   MonthlySales,
   TotalSales,
 } from './entities/daily_sales.entity';
+import { Type } from 'class-transformer';
+
+@ArgsType()
+class TotalSalesArgs {
+  @Field() // Este campo es el id
+  id: string;
+
+  @Field(() => [Date]) // Este campo es el array de fechas
+  @Type(() => Date) // Este decorador le indica a class-transformer que cada elemento del array debe ser tratado como un string
+  date: Date[];
+
+  @Field() // Este campo es el id
+  rangeActive: boolean;
+}
 
 @Resolver(() => Dashboard)
 export class DashboardResolver {
@@ -38,7 +60,8 @@ export class DashboardResolver {
   }
 
   @Query(() => TotalSales, { name: 'TotalSales' })
-  TotalSales(@Args('id') id: string) {
-    return this.dashboardService.totalSales(id);
+  TotalSales(@Args() args: TotalSalesArgs) {
+    const { id, date, rangeActive } = args;
+    return this.dashboardService.totalSales(id, date, rangeActive);
   }
 }
